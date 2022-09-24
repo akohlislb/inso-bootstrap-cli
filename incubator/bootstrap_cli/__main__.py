@@ -508,6 +508,8 @@ class BootstrapCore:
             self.client: CogniteClient = self.config.cognite.get_cognite_client(  # noqa
                 client_name="inso-bootstrap-cli", token_custom_args=self.config.token_custom_args
             )
+
+            self.inject_fdm(self.client)
             self.cdf_project = self.client.config.project
             _logger.info(f"Successful connection to CDF client to project: '{self.cdf_project}'")
 
@@ -515,6 +517,17 @@ class BootstrapCore:
             if command in (CommandMode.PREPARE, CommandMode.DEPLOY, CommandMode.DELETE):
                 self.deployed = CogniteDeployedCache(self.client, groups_only=(command == CommandMode.PREPARE))
                 self.deployed.log_counts()
+
+    def inject_fdm(self, client: CogniteClient) -> None:
+        #
+        # FDM SDK injector
+        #
+        from fdm_inject_v2_56_1._api.data_model_storages import DataModelStoragesAPI
+        _API_VERSION = "v1"
+        if not getattr(client, "data_storage_spaces", None):
+            client.functions = DataModelStoragesAPI(
+                config=client.config, api_version=_API_VERSION = "v1", cognite_client=client
+            )
 
     @staticmethod
     def acl_template(actions, scope):
