@@ -2,6 +2,7 @@ from typing import *
 
 from cognite.client.data_classes._base import *
 
+
 class DataModelStorageSpace(CogniteResource):
     """No description.
 
@@ -13,12 +14,13 @@ class DataModelStorageSpace(CogniteResource):
     def __init__(
         self,
         external_id: str = None,
-        cognite_client = None,
+        cognite_client=None,
     ):
         self.external_id = external_id
         self._cognite_client = cognite_client
 
+
 class DataModelStorageSpaceList(CogniteResourceList):
     _RESOURCE = DataModelStorageSpace
     _UPDATE = None
-    _ASSERT_CLASSES=False
+    _ASSERT_CLASSES = False

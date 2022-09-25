@@ -1,14 +1,10 @@
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Union, cast
 
 from cognite.client._api_client import APIClient
+from cognite.client.utils._identifier import IdentifierSequence
 
 # from cognite.client.data_classes.data_model_storages.spaces import (
-from fdm_inject_v4.data_classes.data_model_storages.spaces import (
-    DataModelStorageSpace,
-    DataModelStorageSpaceList,
-)
-
-from cognite.client.utils._identifier import IdentifierSequence
+from fdm_inject_v4.data_classes.data_model_storages.spaces import DataModelStorageSpace, DataModelStorageSpaceList
 
 
 class DataModelStorageSpacesAPI(APIClient):
@@ -45,7 +41,12 @@ class DataModelStorageSpacesAPI(APIClient):
         #     write_protected=write_protected,
         # ).dump(camel_case=True)
         return self._list_generator(
-            list_cls=DataModelStorageSpaceList, resource_cls=DataModelStorageSpace, method="POST", chunk_size=chunk_size, filter=filter, limit=limit
+            list_cls=DataModelStorageSpaceList,
+            resource_cls=DataModelStorageSpace,
+            method="POST",
+            chunk_size=chunk_size,
+            filter=filter,
+            limit=limit,
         )
 
     def __iter__(self) -> Iterator[DataModelStorageSpace]:
@@ -58,7 +59,9 @@ class DataModelStorageSpacesAPI(APIClient):
         """
         return cast(Iterator[DataModelStorageSpace], self.__call__())
 
-    def create(self, space: Union[DataModelStorageSpace, Sequence[DataModelStorageSpace]]) -> Union[DataModelStorageSpace, DataModelStorageSpaceList]:
+    def create(
+        self, space: Union[DataModelStorageSpace, Sequence[DataModelStorageSpace]]
+    ) -> Union[DataModelStorageSpace, DataModelStorageSpaceList]:
         """`Create one or more spaces. <https://docs.cognite.com/api/v1/#operation/createSpaces>`_
 
         Args:
@@ -77,7 +80,9 @@ class DataModelStorageSpacesAPI(APIClient):
                 >>> spaces = [DataModelStorageSpace(external_id="1st level"), DataModelStorageSpace(external_id="2nd level")]
                 >>> res = c.data_model_storages.spaces.create(spaces)
         """
-        return self._create_multiple(list_cls=DataModelStorageSpaceList, resource_cls=DataModelStorageSpace, items=space)
+        return self._create_multiple(
+            list_cls=DataModelStorageSpaceList, resource_cls=DataModelStorageSpace, items=space
+        )
 
     def retrieve(self, external_id: Optional[str] = None) -> Optional[DataModelStorageSpace]:
         """`Retrieve a single data set by id. <https://docs.cognite.com/api/v1/#operation/getSpaces>`_
@@ -97,7 +102,9 @@ class DataModelStorageSpacesAPI(APIClient):
                 >>> res = c.spaces.retrieve(external_id="1")
         """
         identifiers = IdentifierSequence.load(external_ids=external_id).as_singleton()
-        return self._retrieve_multiple(list_cls=DataModelStorageSpaceList, resource_cls=DataModelStorageSpace, identifiers=identifiers)
+        return self._retrieve_multiple(
+            list_cls=DataModelStorageSpaceList, resource_cls=DataModelStorageSpace, identifiers=identifiers
+        )
 
     def retrieve_multiple(
         self,
@@ -121,7 +128,10 @@ class DataModelStorageSpacesAPI(APIClient):
         """
         identifiers = IdentifierSequence.load(external_ids=external_ids)
         return self._retrieve_multiple(
-            list_cls=DataModelStorageSpaceList, resource_cls=DataModelStorageSpace, identifiers=identifiers, ignore_unknown_ids=ignore_unknown_ids
+            list_cls=DataModelStorageSpaceList,
+            resource_cls=DataModelStorageSpace,
+            identifiers=identifiers,
+            ignore_unknown_ids=ignore_unknown_ids,
         )
 
     def list(
@@ -167,8 +177,13 @@ class DataModelStorageSpacesAPI(APIClient):
         #     external_id_prefix=external_id_prefix,
         #     write_protected=write_protected,
         # ).dump(camel_case=True)
-        return self._list(list_cls=DataModelStorageSpaceList, resource_cls=DataModelStorageSpace, method="POST", limit=limit, filter=filter)
-
+        return self._list(
+            list_cls=DataModelStorageSpaceList,
+            resource_cls=DataModelStorageSpace,
+            method="POST",
+            limit=limit,
+            filter=filter,
+        )
 
     def delete(
         self,

@@ -1,9 +1,11 @@
 from typing import Any, Awaitable, Dict, List, Optional, Union
 
 from cognite.client import utils
+from cognite.client._api_client import APIClient
+
 # from cognite.client._api.data_model_storages.spaces import DataModelStorageSpacesAPI
 from fdm_inject_v2_56_1._api.data_model_storages.spaces import DataModelStorageSpacesAPI
-from cognite.client._api_client import APIClient
+
 # from cognite.client.data_classes.data_model_storages.spaces import (
 #     DataModelStorageSpace,
 #     DataModelStorageSpaceList,

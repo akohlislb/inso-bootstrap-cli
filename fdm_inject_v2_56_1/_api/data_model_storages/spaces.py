@@ -2,11 +2,12 @@ from typing import *
 
 from cognite.client import utils
 from cognite.client._api_client import APIClient
-from fdm_inject_v2_56_1.data_classes.data_model_storages.spaces import (
-# from cognite.client.data_classes.data_model_storages.spaces import (
+
+from fdm_inject_v2_56_1.data_classes.data_model_storages.spaces import (  # from cognite.client.data_classes.data_model_storages.spaces import (
     DataModelStorageSpace,
     DataModelStorageSpaceList,
 )
+
 
 class DataModelStorageSpacesAPI(APIClient):
     _RESOURCE_PATH = "/datamodelstorage/spaces"
@@ -52,7 +53,9 @@ class DataModelStorageSpacesAPI(APIClient):
         """
         return self.__call__()
 
-    def create(self, space: Union[DataModelStorageSpace, List[DataModelStorageSpace]]) -> Union[DataModelStorageSpace, DataModelStorageSpaceList]:
+    def create(
+        self, space: Union[DataModelStorageSpace, List[DataModelStorageSpace]]
+    ) -> Union[DataModelStorageSpace, DataModelStorageSpaceList]:
         """`Create one or more spaces. <https://docs.cognite.com/api/v1/#operation/createDataModelStorageSpaces>`_
 
         Args:

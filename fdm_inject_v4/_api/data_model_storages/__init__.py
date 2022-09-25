@@ -6,10 +6,8 @@ from cognite.client._api_client import APIClient
 from fdm_inject_v4._api.data_model_storages.spaces import DataModelStorageSpacesAPI
 
 # from cognite.client.data_classes.data_model_storages.spaces import (
-from fdm_inject_v4.data_classes.data_model_storages.spaces import (
-    DataModelStorageSpace,
-    DataModelStorageSpaceList,
-)
+from fdm_inject_v4.data_classes.data_model_storages.spaces import DataModelStorageSpace, DataModelStorageSpaceList
+
 
 class DataModelStoragesAPI(APIClient):
     _RESOURCE_PATH = "/datamodelstorage"
