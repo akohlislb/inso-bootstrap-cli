@@ -18,6 +18,7 @@ class DataModelStorageSpace(CogniteResource):
         self.external_id = external_id
         self._cognite_client = cognite_client
 
-
 class DataModelStorageSpaceList(CogniteResourceList):
     _RESOURCE = DataModelStorageSpace
+    _UPDATE = None
+    _ASSERT_CLASSES=False

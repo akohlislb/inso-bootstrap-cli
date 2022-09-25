@@ -94,6 +94,7 @@
 #      as it is shared with extractor-utils 'LoggingConfig'
 # 220826 js: v2.2.0 added two more acls: templateInstances, templateGroups
 #        pa: added two more acls: dataModels, dataModelInstances (for FDM), limited to "all" scope access for now
+# 220925 pa: self-made FDM SDK injection for Cognite SDK v2 to test support for spaces ACL
 #
 # TODO:
 #
@@ -140,6 +141,14 @@ from incubator.bootstrap_cli.mermaid_generator.mermaid import (
     SubroutineNode,
     TrapezNode,
 )
+
+# fdm sdk injection
+from fdm_inject_v2_56_1._api.data_model_storages import DataModelStoragesAPI
+from fdm_inject_v2_56_1.data_classes.data_model_storages.spaces import (
+    DataModelStorageSpace,
+    DataModelStorageSpaceList,
+)
+
 
 # '''
 #           888          888               888                               .d888 d8b
@@ -244,7 +253,6 @@ acl_default_types = [
 # give precedence when merging over acl_default_types
 acl_admin_types = list(action_dimensions["admin"].keys())
 
-
 class CacheUpdateMode(str, Enum):
     CREATE = "create"
     UPDATE = "update"
@@ -258,12 +266,17 @@ class CogniteResourceCache(UserList):
     """
 
     # not all CDF resources support 'id' for selection, so this is the dynamic lookup for
-    RESOURCE_SELECTOR_MAPPING = {DataSet: "id", Group: "id", Database: "name"}  # noqa
+    RESOURCE_SELECTOR_MAPPING = {
+        DataSet: "id",
+        Group: "id",
+        Database: "name",
+        DataModelStorageSpace: "external_id"
+        }  # noqa
 
     def __init__(
-        self, RESOURCE: Union[Group, Database, DataSet], resources: Union[CogniteResource, CogniteResourceList]
+        self, RESOURCE: Union[Group, Database, DataSet, DataModelStorageSpace], resources: Union[CogniteResource, CogniteResourceList]
     ) -> None:
-        self.RESOURCE: Union[Group, Database, DataSet] = RESOURCE
+        self.RESOURCE: Union[Group, Database, DataSet, DataModelStorageSpace] = RESOURCE
         self.SELECTOR_FIELD = CogniteResourceCache.RESOURCE_SELECTOR_MAPPING[RESOURCE]
 
         _logger.debug(f"Init Resource Cache {RESOURCE=} with SELECTOR_FIELD='{self.SELECTOR_FIELD}'")
@@ -296,7 +309,11 @@ class CogniteResourceCache(UserList):
         Returns:
             List[str]: _description_
         """
-        return [(resource.name or "") for resource in self.data]
+
+        def get_name(resource):
+            return resource.name if getattr(resource, 'name', False) else resource.external_id
+
+        return [(get_name(resource) or "") for resource in self.data]
 
     def select(self, values):
         return [c for c in self.data if getattr(c, self.SELECTOR_FIELD) in values]
@@ -355,6 +372,7 @@ class CogniteDeployedCache:
         self.groups: CogniteResourceCache = None
         self.datasets: CogniteResourceCache = None
         self.raw_dbs: CogniteResourceCache = None
+        self.spaces: CogniteResourceCache = None
 
         """Load CDF groups, datasets and raw databases as CogniteResourceList
         and store them in 'self.deployed' dictionary.
@@ -376,12 +394,14 @@ class CogniteDeployedCache:
 
         self.datasets = CogniteResourceCache(RESOURCE=DataSet, resources=self.client.data_sets.list(limit=NOLIMIT))
         self.raw_dbs = CogniteResourceCache(RESOURCE=Database, resources=self.client.raw.databases.list(limit=NOLIMIT))
+        self.spaces = CogniteResourceCache(RESOURCE=DataModelStorageSpace, resources=self.client.data_model_storages.spaces.list(limit=NOLIMIT))
 
     def log_counts(self):
         _logger.info(
             f"""Deployed CDF Resource counts:
             RAW Dbs({len(self.raw_dbs.get_names()) if self.raw_dbs else 'n/a with this command'})
             Data Sets({len(self.datasets.get_names()) if self.datasets else 'n/a with this command'})
+            Data Model Spaces({len(self.spaces.get_names()) if self.spaces else 'n/a with this command'})
             CDF Groups({len(self.groups.get_names())})"""
         )
 
@@ -454,6 +474,9 @@ class BootstrapCore:
             # [OPTIONAL] default: "dataset"
             # support for '' empty string
             BootstrapCore.DATASET_SUFFIX = f":{features.dataset_suffix}" if features.dataset_suffix else ""
+            # [OPTIONAL] default: "space"
+            # support for '' empty string
+            BootstrapCore.SPACE_SUFFIX = f":{features.space_suffix}" if features.space_suffix else ""
             # [OPTIONAL] default: "rawdb"
             # support for '' empty string
             BootstrapCore.RAW_SUFFIX = f":{features.rawdb_suffix}" if features.rawdb_suffix else ""
@@ -522,12 +545,12 @@ class BootstrapCore:
         #
         # FDM SDK injector
         #
-        from fdm_inject_v2_56_1._api.data_model_storages import DataModelStoragesAPI
         _API_VERSION = "v1"
-        if not getattr(client, "data_storage_spaces", None):
-            client.functions = DataModelStoragesAPI(
-                config=client.config, api_version=_API_VERSION = "v1", cognite_client=client
+        if not getattr(client, "data_model_storages", None):
+            client.data_model_storages = DataModelStoragesAPI(
+                config=client.config, api_version=_API_VERSION, cognite_client=client
             )
+            _logger.debug("Successfully injected FDM data_model_storages")
 
     @staticmethod
     def acl_template(actions, scope):
@@ -570,6 +593,8 @@ class BootstrapCore:
         RAWDB_NAME_LENGTH_LIMIT = 32
         DATASET_NAME_LENGTH_LIMIT = 50
         DATASET_EXTERNALID_LENGTH_LIMIT = 255
+        # TODO: space extid limit?
+        # SPACE_EXTERNALID_LENGTH_LIMIT = 255
 
         # create all required scopes to check name lengths
         all_scopes = {
@@ -1265,6 +1290,7 @@ class BootstrapCore:
                     "raw_dbs": [],
                     "datasets": [],
                     "groups": [],
+                    "spaces": [],
                 },
                 "latest_deployment": {
                     "raw_dbs": sorted(self.deployed.raw_dbs.get_names()),
@@ -1272,6 +1298,7 @@ class BootstrapCore:
                     "datasets": sorted(self.deployed.datasets.get_names()),
                     # (.. or "") because group names can be empty (None value)
                     "groups": sorted(self.deployed.groups.get_names()),
+                    "spaces": sorted(self.deployed.spaces.get_names()),
                 },
             }
         )
@@ -2092,7 +2119,10 @@ def bootstrap_cli(
 ) -> None:
 
     # load .env from file if exists, use given dotenv_path if provided
-    load_dotenv(dotenv_path=dotenv_path)
+    load_dotenv(dotenv_path=dotenv_path, override=True, verbose=True)
+    # import os
+    # print('\n'.join(sorted([f'{k} : {v}' for k,v in os.environ.items()])))
+
 
     context.obj = {
         # cdf

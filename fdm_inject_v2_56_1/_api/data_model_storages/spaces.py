@@ -2,7 +2,8 @@ from typing import *
 
 from cognite.client import utils
 from cognite.client._api_client import APIClient
-from cognite.client.data_classes.data_model_storages.spaces import (
+from fdm_inject_v2_56_1.data_classes.data_model_storages.spaces import (
+# from cognite.client.data_classes.data_model_storages.spaces import (
     DataModelStorageSpace,
     DataModelStorageSpaceList,
 )
@@ -158,7 +159,7 @@ class DataModelStorageSpacesAPI(APIClient):
         #     external_id_prefix=external_id_prefix,
         #     write_protected=write_protected,
         # ).dump(camel_case=True)
-        return self._list(method="POST", limit=limit, filter=filter)
+        return self._list(method="POST", limit=limit, filter=filter, headers={"cdf-version": "alpha"})
 
     def delete(
         self,

@@ -143,6 +143,7 @@ class BootstrapFeatures:
     group_prefix: Optional[str]
     aggregated_level_name: Optional[str]
     dataset_suffix: Optional[str]
+    space_suffix: Optional[str]
     rawdb_suffix: Optional[str]
     rawdb_additional_variants: Optional[List[str]]
 
@@ -160,6 +161,8 @@ class BootstrapFeatures:
             self.aggregated_level_name = "allprojects"
         if self.dataset_suffix is None:
             self.dataset_suffix = "dataset"
+        if self.space_suffix is None:
+            self.space_suffix = "space"
         if self.rawdb_suffix is None:
             self.rawdb_suffix = "rawdb"
         if self.rawdb_additional_variants is None:
