@@ -140,7 +140,7 @@ class BootstrapFeatures:
     # load_yaml includes mapping from several string like 'yes|no' to boolean
     with_special_groups: Optional[bool]
     with_raw_capability: Optional[bool]
-    with_fdm_capability: Optional[bool]
+    with_datamodel_capability: Optional[bool]
     group_prefix: Optional[str]
     aggregated_level_name: Optional[str]
     dataset_suffix: Optional[str]
@@ -156,8 +156,8 @@ class BootstrapFeatures:
             self.with_special_groups = False
         if self.with_raw_capability is None:
             self.with_raw_capability = True
-        if self.with_fdm_capability is None:
-            self.with_fdm_capability = False
+        if self.with_datamodel_capability is None:
+            self.with_datamodel_capability = False
         if self.group_prefix is None:
             self.group_prefix = "cdf"
         if self.aggregated_level_name is None:
@@ -211,6 +211,7 @@ class BootstrapCoreConfig:
             # available as cli paramaters only atm
             with-special-groups: no
             with-raw-capability: yes
+            with-datamodel-capability: no
             # default hard-coded names atm, which might be required to change
             group-prefix: cdf
             aggregated-level-name: allprojects

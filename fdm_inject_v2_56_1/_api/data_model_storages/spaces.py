@@ -74,7 +74,7 @@ class DataModelStorageSpacesAPI(APIClient):
                 >>> space = [DataModelStorageSpace(external_id="1st level"), DataModelStorageSpace(external_id="2nd level")]
                 >>> res = c.data_model_storages.spaces.create(space)
         """
-        return self._create_multiple(items=space)
+        return self._create_multiple(items=space, headers={"cdf-version": "alpha"})
 
     def retrieve(self, external_id: Optional[str] = None) -> Optional[DataModelStorageSpace]:
         """`Retrieve a single data set by id. <https://docs.cognite.com/api/v1/#operation/getDataModelStorageSpaces>`_
@@ -95,7 +95,7 @@ class DataModelStorageSpacesAPI(APIClient):
                 >>> res = c.spaces.retrieve(external_id="1")
         """
         # utils._auxiliary.assert_exactly_one_of_id_or_external_id(id, external_id)
-        return self._retrieve_multiple(external_ids=external_id, wrap_ids=False)
+        return self._retrieve_multiple(external_ids=external_id, wrap_ids=False, headers={"cdf-version": "alpha"})
 
     def retrieve_multiple(self, external_ids: Optional[List[str]] = None) -> DataModelStorageSpaceList:
         """`Retrieve multiple spaces by id. <https://docs.cognite.com/api/v1/#operation/getDataModelStorageSpaces>`_
@@ -116,7 +116,7 @@ class DataModelStorageSpacesAPI(APIClient):
         """
         utils._auxiliary.assert_type(external_ids, "external_id", [List], allow_none=True)
         return self._retrieve_multiple(
-            ids=ids, external_ids=external_ids, ignore_unknown_ids=ignore_unknown_ids, wrap_ids=True
+            external_ids=external_ids, wrap_ids=False, headers={"cdf-version": "alpha"}
         )
 
     def list(
