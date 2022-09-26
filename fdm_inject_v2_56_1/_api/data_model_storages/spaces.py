@@ -3,10 +3,8 @@ from typing import *
 from cognite.client import utils
 from cognite.client._api_client import APIClient
 
-from fdm_inject_v2_56_1.data_classes.data_model_storages.spaces import (  # from cognite.client.data_classes.data_model_storages.spaces import (
-    DataModelStorageSpace,
-    DataModelStorageSpaceList,
-)
+# from cognite.client.data_classes.data_model_storages.spaces import (
+from fdm_inject_v2_56_1.data_classes.data_model_storages.spaces import DataModelStorageSpace, DataModelStorageSpaceList
 
 
 class DataModelStorageSpacesAPI(APIClient):
@@ -115,9 +113,7 @@ class DataModelStorageSpacesAPI(APIClient):
                 >>> res = c.spaces.retrieve_multiple(external_ids=["abc", "def"])
         """
         utils._auxiliary.assert_type(external_ids, "external_id", [List], allow_none=True)
-        return self._retrieve_multiple(
-            external_ids=external_ids, wrap_ids=False, headers={"cdf-version": "alpha"}
-        )
+        return self._retrieve_multiple(external_ids=external_ids, wrap_ids=False, headers={"cdf-version": "alpha"})
 
     def list(
         self,
@@ -171,7 +167,7 @@ class DataModelStorageSpacesAPI(APIClient):
         """`Delete one or more assets <https://doc.cognitedata.com/api/v1/#operation/deleteAssets>`_
 
         Args:
-            external_id (Union[str, List[str]]): External ID or list of exgernal ids
+            external_id (Union[str, List[str]]): External ID or list of external ids
 
         Returns:
             None
