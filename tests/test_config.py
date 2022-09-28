@@ -2,7 +2,7 @@ import json
 
 from dotenv import load_dotenv
 
-from incubator.bootstrap_cli.__main__ import BootstrapCore
+from incubator.bootstrap_cli.__main__ import BootstrapCore, RoleType
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
 
     print("=" * 80)
 
-    action = "read"
+    action = RoleType.READ
     group_ns = "src"
     group_core = "src:001:sap"
     group_name, group_capabilities = bootstrap.generate_group_name_and_capabilities(
@@ -34,7 +34,7 @@ def main():
 
     print("=" * 80)
 
-    action = "owner"
+    action = RoleType.OWNER
     group_ns = "src"
     group_name, group_capabilities = bootstrap.generate_group_name_and_capabilities(
         action=action,
